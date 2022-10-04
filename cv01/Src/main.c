@@ -16,6 +16,8 @@
  ******************************************************************************
  */
 
+#include "stm32f0xx.h"
+
 #include <stdint.h>
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
@@ -24,6 +26,19 @@
 
 int main(void)
 {
+	static const uint32_t pole = 0b10101001110111011100101010000000;
+
+RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+GPIOA->MODER |= GPIO_MODER_MODER5_0;
+
     /* Loop forever */
-	for(;;);
+	for (;;)  {
+
+		for (uint8_t i = 0; i < 32; i++) {
+			if (pole & (1 << (31-i))) GPIOA->BSRR = (1<<5); // set
+			else GPIOA->BRR = (1<<5); // reset
+
+			for (volatile uint32_t i = 0; i < 100000; i++) {}
+		}
+	}
 }
